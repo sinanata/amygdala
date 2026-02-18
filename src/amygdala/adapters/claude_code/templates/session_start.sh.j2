@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Amygdala session start hook for Claude Code
+STATUS_JSON=$(amygdala status --json --dir "{{ project_root }}" 2>/dev/null)
+if [ $? -eq 0 ]; then
+    echo "$STATUS_JSON"
+fi
