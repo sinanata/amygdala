@@ -17,6 +17,8 @@ class AmygdalaConfig(BaseModel):
     project_root: str
     default_granularity: Granularity = Granularity.MEDIUM
     provider: ProviderConfig
+    profiles: list[str] = Field(default_factory=list)
+    auto_capture: bool = True
     exclude_patterns: list[str] = Field(default_factory=lambda: [
         "*.pyc", "__pycache__", ".git", "node_modules", ".venv",
         "venv", "dist", "build", "*.egg-info",

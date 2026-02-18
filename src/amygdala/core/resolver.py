@@ -23,39 +23,45 @@ def memory_to_source_path(memory_relative: str) -> str:
     return memory_relative
 
 
-def detect_language(file_path: str) -> str | None:
+BASE_LANGUAGE_MAP: dict[str, str] = {
+    ".py": "python",
+    ".js": "javascript",
+    ".ts": "typescript",
+    ".jsx": "javascript",
+    ".tsx": "typescript",
+    ".java": "java",
+    ".kt": "kotlin",
+    ".go": "go",
+    ".rs": "rust",
+    ".c": "c",
+    ".cpp": "cpp",
+    ".h": "c",
+    ".hpp": "cpp",
+    ".cs": "csharp",
+    ".rb": "ruby",
+    ".php": "php",
+    ".swift": "swift",
+    ".scala": "scala",
+    ".sh": "shell",
+    ".bash": "shell",
+    ".zsh": "shell",
+    ".yaml": "yaml",
+    ".yml": "yaml",
+    ".toml": "toml",
+    ".json": "json",
+    ".xml": "xml",
+    ".html": "html",
+    ".css": "css",
+    ".sql": "sql",
+    ".md": "markdown",
+}
+
+
+def detect_language(
+    file_path: str,
+    language_map: dict[str, str] | None = None,
+) -> str | None:
     """Detect the programming language from file extension."""
-    ext_map: dict[str, str] = {
-        ".py": "python",
-        ".js": "javascript",
-        ".ts": "typescript",
-        ".jsx": "javascript",
-        ".tsx": "typescript",
-        ".java": "java",
-        ".kt": "kotlin",
-        ".go": "go",
-        ".rs": "rust",
-        ".c": "c",
-        ".cpp": "cpp",
-        ".h": "c",
-        ".hpp": "cpp",
-        ".cs": "csharp",
-        ".rb": "ruby",
-        ".php": "php",
-        ".swift": "swift",
-        ".scala": "scala",
-        ".sh": "shell",
-        ".bash": "shell",
-        ".zsh": "shell",
-        ".yaml": "yaml",
-        ".yml": "yaml",
-        ".toml": "toml",
-        ".json": "json",
-        ".xml": "xml",
-        ".html": "html",
-        ".css": "css",
-        ".sql": "sql",
-        ".md": "markdown",
-    }
+    ext_map = language_map if language_map is not None else BASE_LANGUAGE_MAP
     suffix = PurePosixPath(file_path).suffix.lower()
     return ext_map.get(suffix)

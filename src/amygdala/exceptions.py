@@ -65,6 +65,14 @@ class UnsupportedFileError(CaptureError):
     """Raised when a file type is not supported for capture."""
 
 
+class ProfileError(AmygdalaError):
+    """Profile-related error."""
+
+
+class ProfileNotFoundError(ProfileError):
+    """Raised when a requested extension profile is not found."""
+
+
 class AdapterError(AmygdalaError):
     """Adapter-related error."""
 

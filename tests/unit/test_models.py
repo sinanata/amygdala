@@ -52,6 +52,7 @@ class TestProviderName:
         assert ProviderName.ANTHROPIC == "anthropic"
         assert ProviderName.OPENAI == "openai"
         assert ProviderName.OLLAMA == "ollama"
+        assert ProviderName.GEMINI == "gemini"
 
 
 class TestAdapterName:
@@ -111,6 +112,8 @@ class TestAmygdalaConfig:
         assert cfg.default_granularity == Granularity.MEDIUM
         assert cfg.max_file_size_bytes == 1_000_000
         assert len(cfg.exclude_patterns) > 0
+        assert cfg.profiles == []
+        assert cfg.auto_capture is True
 
     def test_project_path(self):
         cfg = AmygdalaConfig(
@@ -132,6 +135,26 @@ class TestAmygdalaConfig:
         assert cfg.default_granularity == Granularity.HIGH
         assert cfg.exclude_patterns == ["*.log"]
         assert cfg.max_file_size_bytes == 500_000
+
+    def test_profiles_field(self):
+        cfg = AmygdalaConfig(
+            project_root="/tmp/proj",
+            provider=ProviderConfig(
+                name=ProviderName.ANTHROPIC, model="claude-haiku-4-5-20251001"
+            ),
+            profiles=["unity", "python"],
+        )
+        assert cfg.profiles == ["unity", "python"]
+
+    def test_auto_capture_disabled(self):
+        cfg = AmygdalaConfig(
+            project_root="/tmp/proj",
+            provider=ProviderConfig(
+                name=ProviderName.ANTHROPIC, model="claude-haiku-4-5-20251001"
+            ),
+            auto_capture=False,
+        )
+        assert cfg.auto_capture is False
 
 
 # ── IndexEntry / IndexFile ─────────────────────────────────────────────

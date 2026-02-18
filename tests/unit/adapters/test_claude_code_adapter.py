@@ -9,7 +9,10 @@ import pytest
 
 from amygdala.adapters.claude_code.adapter import ClaudeCodeAdapter
 from amygdala.core.engine import AmygdalaEngine
+from amygdala.core.index import load_index, save_index, upsert_entry
 from amygdala.git.operations import add_files, commit, init_repo
+from amygdala.models.enums import FileStatus
+from amygdala.models.index import IndexEntry
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -86,6 +89,44 @@ class TestGetContextForSession:
     def test_returns_empty_on_error(self, adapter: ClaudeCodeAdapter, tmp_path: Path):
         context = adapter.get_context_for_session(tmp_path)
         assert context == ""
+
+
+class TestGetContextAutoCapture:
+    def test_context_includes_auto_capture_hint(
+        self, adapter: ClaudeCodeAdapter, amygdala_project: Path,
+    ):
+        # Create an index entry and mark it dirty
+        index = load_index(amygdala_project)
+        entry = IndexEntry(
+            relative_path="main.py",
+            content_hash="old-hash",
+            status=FileStatus.DIRTY,
+        )
+        upsert_entry(index, entry)
+        save_index(amygdala_project, index)
+
+        context = adapter.get_context_for_session(amygdala_project)
+        assert "store_summary" in context
+
+    def test_no_hint_when_auto_capture_disabled(
+        self, adapter: ClaudeCodeAdapter, amygdala_project: Path,
+    ):
+        # Re-init with auto_capture=False
+        engine = AmygdalaEngine(amygdala_project)
+        engine.init(auto_capture=False)
+
+        # Create dirty entry
+        index = load_index(amygdala_project)
+        entry = IndexEntry(
+            relative_path="main.py",
+            content_hash="old-hash",
+            status=FileStatus.DIRTY,
+        )
+        upsert_entry(index, entry)
+        save_index(amygdala_project, index)
+
+        context = adapter.get_context_for_session(amygdala_project)
+        assert "store_summary" not in context
 
 
 class TestOnFileChanged:

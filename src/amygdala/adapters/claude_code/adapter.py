@@ -77,7 +77,12 @@ class ClaudeCodeAdapter(PlatformAdapter):
                 f"Dirty: {data['dirty_files']} files",
             ]
             if data["dirty_list"]:
-                lines.append("Dirty files: " + ", ".join(data["dirty_list"]))
+                lines.append(
+                    "Dirty files: " + ", ".join(data["dirty_list"])
+                )
+            if data.get("auto_capture_hint"):
+                lines.append("")
+                lines.append(data["auto_capture_hint"])
             return "\n".join(lines)
         except Exception:
             return ""

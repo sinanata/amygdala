@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "amygdala"
-version = "0.1.1"
+version = "0.2.0"
 description = "AI coding assistant memory system — git-integrated file summaries"
 readme = "README.md"
 license = "MIT"
@@ -34,7 +34,8 @@ dependencies = [
 anthropic = ["anthropic>=0.39"]
 openai = ["openai>=1.50"]
 ollama = ["ollama>=0.4"]
-all-providers = ["amygdala[anthropic,openai,ollama]"]
+gemini = ["google-genai>=1.0"]
+all-providers = ["amygdala[anthropic,openai,ollama,gemini]"]
 dev = [
     "pytest>=8",
     "pytest-cov>=6",
@@ -53,6 +54,7 @@ amygdala = "amygdala.cli.app:main"
 anthropic = "amygdala.providers.anthropic:AnthropicProvider"
 openai = "amygdala.providers.openai:OpenAIProvider"
 ollama = "amygdala.providers.ollama:OllamaProvider"
+gemini = "amygdala.providers.gemini:GeminiProvider"
 
 [project.entry-points."amygdala.adapters"]
 claude-code = "amygdala.adapters.claude_code.adapter:ClaudeCodeAdapter"

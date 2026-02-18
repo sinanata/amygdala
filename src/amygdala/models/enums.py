@@ -27,6 +27,7 @@ class ProviderName(StrEnum):
     ANTHROPIC = "anthropic"
     OPENAI = "openai"
     OLLAMA = "ollama"
+    GEMINI = "gemini"
 
 
 class AdapterName(StrEnum):

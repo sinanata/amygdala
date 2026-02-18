@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import tomli_w
 
 from amygdala.constants import SCHEMA_VERSION
-from amygdala.core.capture import capture_file
+from amygdala.core.capture import capture_file, store_file_summary
 from amygdala.core.dirty_tracker import get_dirty_files, scan_dirty_files
 from amygdala.core.index import load_index, save_index, upsert_entry
 from amygdala.exceptions import ConfigNotFoundError
@@ -16,6 +16,11 @@ from amygdala.models.config import AmygdalaConfig
 from amygdala.models.enums import Granularity, ProviderName
 from amygdala.models.index import IndexFile
 from amygdala.models.provider import ProviderConfig
+from amygdala.profiles.registry import (
+    get_profile,
+    resolve_extensions,
+    resolve_language_map,
+)
 from amygdala.providers.registry import get_provider_class
 from amygdala.storage.layout import ensure_layout, get_config_path
 from amygdala.storage.memory_store import list_memory_files
@@ -39,10 +44,19 @@ class AmygdalaEngine:
         model: str = "claude-haiku-4-5-20251001",
         granularity: str = "medium",
         api_key: str | None = None,
+        profiles: list[str] | None = None,
+        auto_capture: bool = True,
     ) -> AmygdalaConfig:
         """Initialize Amygdala in the project."""
         ensure_git_repo(self.project_root)
         ensure_layout(self.project_root)
+
+        # Validate profile names early
+        validated_profiles: list[str] = []
+        if profiles:
+            for name in profiles:
+                get_profile(name)  # raises ProfileNotFoundError
+                validated_profiles.append(name)
 
         config = AmygdalaConfig(
             schema_version=SCHEMA_VERSION,
@@ -53,6 +67,8 @@ class AmygdalaEngine:
                 model=model,
                 api_key=api_key,
             ),
+            profiles=validated_profiles,
+            auto_capture=auto_capture,
         )
 
         config_path = get_config_path(self.project_root)
@@ -99,20 +115,70 @@ class AmygdalaEngine:
         memory_files = list_memory_files(self.project_root)
         dirty = get_dirty_files(self.project_root)
 
-        return {
+        result: dict = {
             "project_root": str(self.project_root),
             "branch": branch,
             "provider": config.provider.name,
             "model": config.provider.model,
             "granularity": config.default_granularity,
+            "profiles": config.profiles,
+            "auto_capture": config.auto_capture,
             "total_tracked": len(tracked),
             "total_indexed": index.total_files,
             "total_captured": len(memory_files),
             "dirty_files": len(dirty),
             "dirty_list": dirty,
             "last_scan_at": str(index.last_scan_at) if index.last_scan_at else None,
-            "last_capture_at": str(index.last_capture_at) if index.last_capture_at else None,
+            "last_capture_at": (
+                str(index.last_capture_at) if index.last_capture_at else None
+            ),
         }
+
+        if config.auto_capture and dirty:
+            result["auto_capture_hint"] = (
+                f"{len(dirty)} file(s) have stale summaries: "
+                f"{', '.join(dirty[:10])}"
+                f"{'...' if len(dirty) > 10 else ''}. "
+                "Use the store_summary MCP tool to refresh each file's memory. "
+                "Read the file, write a concise summary, "
+                "then call store_summary(file_path, summary)."
+            )
+
+        return result
+
+    def store_summary(
+        self,
+        relative_path: str,
+        summary_text: str,
+        *,
+        granularity: Granularity | None = None,
+    ) -> str:
+        """Store a pre-generated summary (no LLM call).
+
+        Used by MCP tools when Claude Code itself generates the summary.
+        Returns the relative path on success.
+        """
+        config = self.load_config()
+        gran = granularity or config.default_granularity
+
+        effective_language_map: dict[str, str] | None = None
+        if config.profiles:
+            effective_language_map = resolve_language_map(config.profiles)
+
+        entry, _ = store_file_summary(
+            project_root=self.project_root,
+            relative_path=relative_path,
+            summary_text=summary_text,
+            granularity=gran,
+            language_map=effective_language_map,
+        )
+
+        index = load_index(self.project_root)
+        upsert_entry(index, entry)
+        index.touch_capture()
+        save_index(self.project_root, index)
+
+        return relative_path
 
     async def capture(
         self,
@@ -128,6 +194,13 @@ class AmygdalaEngine:
         """
         config = self.load_config()
         gran = granularity or config.default_granularity
+
+        # Resolve profile-aware extensions and language map
+        effective_extensions: frozenset[str] | None = None
+        effective_language_map: dict[str, str] | None = None
+        if config.profiles:
+            effective_extensions = resolve_extensions(config.profiles)
+            effective_language_map = resolve_language_map(config.profiles)
 
         if provider is None:
             cls = get_provider_class(config.provider.name)
@@ -153,6 +226,8 @@ class AmygdalaEngine:
                     provider=provider,
                     granularity=gran,
                     max_file_size=config.max_file_size_bytes,
+                    supported_extensions=effective_extensions,
+                    language_map=effective_language_map,
                 )
                 upsert_entry(index, entry)
                 captured.append(rel_path)

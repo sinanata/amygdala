@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from amygdala.core.engine import AmygdalaEngine
-from amygdala.exceptions import ConfigNotFoundError
+from amygdala.exceptions import ConfigNotFoundError, ProfileNotFoundError
 from amygdala.git.operations import add_files, commit, init_repo
 from amygdala.providers.base import LLMProvider
 from amygdala.storage.layout import get_config_path
@@ -75,6 +75,38 @@ class TestInit:
         index = load_index(git_project)
         assert index.schema_version == 1
 
+    def test_init_with_profiles(self, git_project: Path):
+        engine = AmygdalaEngine(git_project)
+        config = engine.init(profiles=["unity", "python"])
+        assert config.profiles == ["unity", "python"]
+
+    def test_init_with_invalid_profile_raises(self, git_project: Path):
+        engine = AmygdalaEngine(git_project)
+        with pytest.raises(ProfileNotFoundError, match="bogus"):
+            engine.init(profiles=["bogus"])
+
+    def test_init_profiles_persisted(self, git_project: Path):
+        engine = AmygdalaEngine(git_project)
+        engine.init(profiles=["unity"])
+        config = engine.load_config()
+        assert config.profiles == ["unity"]
+
+    def test_init_auto_capture_default(self, git_project: Path):
+        engine = AmygdalaEngine(git_project)
+        config = engine.init()
+        assert config.auto_capture is True
+
+    def test_init_auto_capture_disabled(self, git_project: Path):
+        engine = AmygdalaEngine(git_project)
+        config = engine.init(auto_capture=False)
+        assert config.auto_capture is False
+
+    def test_init_auto_capture_persisted(self, git_project: Path):
+        engine = AmygdalaEngine(git_project)
+        engine.init(auto_capture=False)
+        config = engine.load_config()
+        assert config.auto_capture is False
+
 
 class TestLoadConfig:
     def test_no_config_raises(self, git_project: Path):
@@ -98,6 +130,20 @@ class TestStatus:
         assert status["total_tracked"] >= 2  # main.py, README.md
         assert status["total_indexed"] == 0
         assert status["dirty_files"] == 0
+        assert status["profiles"] == []
+        assert status["auto_capture"] is True
+
+    def test_status_with_profiles(self, git_project: Path):
+        engine = AmygdalaEngine(git_project)
+        engine.init(profiles=["unity"])
+        status = engine.status()
+        assert status["profiles"] == ["unity"]
+
+    def test_status_auto_capture_disabled(self, git_project: Path):
+        engine = AmygdalaEngine(git_project)
+        engine.init(auto_capture=False)
+        status = engine.status()
+        assert status["auto_capture"] is False
 
 
 class TestCapture:
@@ -131,6 +177,50 @@ class TestCapture:
         from amygdala.core.index import load_index
         index = load_index(git_project)
         assert "main.py" in index.entries
+
+    async def test_capture_with_profile_accepts_extra_extensions(self, git_project: Path):
+        engine = AmygdalaEngine(git_project)
+        engine.init(profiles=["unity"])
+        # Create a .shader file and add to git
+        (git_project / "test.shader").write_text("Shader \"Test\" {}")
+        from amygdala.git.operations import add_files, commit
+        add_files(git_project, ["test.shader"])
+        commit(git_project, "Add shader")
+        provider = MockProvider()
+        captured = await engine.capture(["test.shader"], provider=provider)
+        assert "test.shader" in captured
+
+
+class TestStoreSummary:
+    def test_store_summary_basic(self, git_project: Path):
+        engine = AmygdalaEngine(git_project)
+        engine.init()
+        result = engine.store_summary("main.py", "Prints hello.")
+        assert result == "main.py"
+
+    def test_store_summary_updates_index(self, git_project: Path):
+        engine = AmygdalaEngine(git_project)
+        engine.init()
+        engine.store_summary("main.py", "Prints hello.")
+        from amygdala.core.index import load_index
+        index = load_index(git_project)
+        assert "main.py" in index.entries
+        assert index.entries["main.py"].status.value == "clean"
+
+    def test_store_summary_writes_memory(self, git_project: Path):
+        engine = AmygdalaEngine(git_project)
+        engine.init()
+        engine.store_summary("main.py", "Prints hello.")
+        memory_path = git_project / ".amygdala" / "memory" / "main.py.md"
+        assert memory_path.exists()
+        content = memory_path.read_text()
+        assert "Prints hello." in content
+
+    def test_store_summary_nonexistent_raises(self, git_project: Path):
+        engine = AmygdalaEngine(git_project)
+        engine.init()
+        with pytest.raises(FileNotFoundError):
+            engine.store_summary("nonexistent.py", "Gone.")
 
 
 class TestScan:

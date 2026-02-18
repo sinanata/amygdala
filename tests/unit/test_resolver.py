@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from amygdala.core.resolver import (
+    BASE_LANGUAGE_MAP,
     detect_language,
     memory_to_source_path,
     source_to_memory_path,
@@ -74,3 +75,26 @@ class TestDetectLanguage:
 
     def test_no_extension(self):
         assert detect_language("Makefile") is None
+
+    def test_custom_language_map(self):
+        custom = {".shader": "shaderlab", ".py": "python"}
+        assert detect_language("effect.shader", language_map=custom) == "shaderlab"
+        assert detect_language("main.py", language_map=custom) == "python"
+        # Extension not in custom map returns None
+        assert detect_language("app.js", language_map=custom) is None
+
+    def test_none_language_map_uses_base(self):
+        assert detect_language("main.py", language_map=None) == "python"
+
+
+class TestBaseLanguageMap:
+    def test_is_dict(self):
+        assert isinstance(BASE_LANGUAGE_MAP, dict)
+
+    def test_contains_python(self):
+        assert BASE_LANGUAGE_MAP[".py"] == "python"
+
+    def test_contains_all_known_extensions(self):
+        assert ".js" in BASE_LANGUAGE_MAP
+        assert ".ts" in BASE_LANGUAGE_MAP
+        assert ".go" in BASE_LANGUAGE_MAP

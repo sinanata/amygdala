@@ -10,10 +10,11 @@ import pytest
 
 from amygdala.adapters.claude_code.mcp_server import create_mcp_server
 from amygdala.core.engine import AmygdalaEngine
+from amygdala.core.resolver import detect_language
 from amygdala.git.operations import add_files, commit, init_repo
 from amygdala.models.enums import Granularity
 from amygdala.models.memory import MemoryFile, Summary
-from amygdala.storage.memory_store import write_memory_file
+from amygdala.storage.memory_store import read_memory_file, write_memory_file
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -89,3 +90,41 @@ class TestMcpTools:
                 results.append(f)
         assert "main.py" in results
         assert "lib.py" not in results
+
+
+class TestStoreSummaryViaMcp:
+    """Test the store_summary flow via the engine method (MCP tools delegate here)."""
+
+    def test_store_summary_basic(self, amygdala_project: Path):
+        engine = AmygdalaEngine(amygdala_project)
+        result = engine.store_summary("main.py", "Main entry point.")
+        assert result == "main.py"
+
+        # Verify memory was written
+        mem = read_memory_file(amygdala_project, "main.py")
+        assert mem.latest_summary is not None
+        assert mem.latest_summary.content == "Main entry point."
+        assert mem.latest_summary.provider == "claude-code"
+
+    def test_store_summary_marks_clean_in_index(self, amygdala_project: Path):
+        engine = AmygdalaEngine(amygdala_project)
+        engine.store_summary("main.py", "Main entry point.")
+        from amygdala.core.index import load_index
+        index = load_index(amygdala_project)
+        assert "main.py" in index.entries
+        assert index.entries["main.py"].status.value == "clean"
+
+
+class TestReadFileForCapture:
+    """Test the read_file_for_capture underlying logic."""
+
+    def test_read_existing_file(self, amygdala_project: Path):
+        abs_path = amygdala_project / "main.py"
+        content = abs_path.read_text()
+        language = detect_language("main.py")
+        assert language == "python"
+        assert "hello" in content
+
+    def test_read_nonexistent_file(self, amygdala_project: Path):
+        abs_path = amygdala_project / "nope.py"
+        assert not abs_path.exists()
