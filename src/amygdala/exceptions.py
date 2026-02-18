@@ -13,11 +13,11 @@ class ConfigNotFoundError(ConfigError):
     """Raised when .amygdala/config.toml is missing."""
 
 
-class IndexError_(AmygdalaError):
-    """Index-related error (underscore avoids shadowing builtin)."""
+class IndexOperationError(AmygdalaError):
+    """Index-related error."""
 
 
-class IndexCorruptedError(IndexError_):
+class IndexCorruptedError(IndexOperationError):
     """Raised when index.json is corrupted or invalid."""
 
 

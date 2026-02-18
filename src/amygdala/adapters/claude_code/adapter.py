@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from amygdala.adapters.base import PlatformAdapter
 from amygdala.adapters.claude_code.hooks import (
@@ -11,8 +11,11 @@ from amygdala.adapters.claude_code.hooks import (
     render_post_tool_use_hook,
     render_session_start_hook,
 )
-from amygdala.core.dirty_tracker import get_dirty_files, mark_file_dirty
+from amygdala.core.dirty_tracker import mark_file_dirty
 from amygdala.core.engine import AmygdalaEngine
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class ClaudeCodeAdapter(PlatformAdapter):
@@ -49,12 +52,17 @@ class ClaudeCodeAdapter(PlatformAdapter):
     def status(self, project_root: Path) -> dict:
         """Get adapter status."""
         hooks_dir = project_root / ".amygdala" / "hooks"
+        installed = hooks_dir.exists()
         return {
             "adapter": self.name,
-            "installed": hooks_dir.exists(),
+            "installed": installed,
             "hooks_dir": str(hooks_dir),
-            "session_start_hook": (hooks_dir / "session_start.sh").exists() if hooks_dir.exists() else False,
-            "post_tool_use_hook": (hooks_dir / "post_tool_use.sh").exists() if hooks_dir.exists() else False,
+            "session_start_hook": (
+                (hooks_dir / "session_start.sh").exists() if installed else False
+            ),
+            "post_tool_use_hook": (
+                (hooks_dir / "post_tool_use.sh").exists() if installed else False
+            ),
         }
 
     def get_context_for_session(self, project_root: Path) -> str:

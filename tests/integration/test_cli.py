@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import json
 import subprocess
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from typer.testing import CliRunner
 
 from amygdala.cli.app import app
 from amygdala.git.operations import add_files, commit, init_repo
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 runner = CliRunner()
 

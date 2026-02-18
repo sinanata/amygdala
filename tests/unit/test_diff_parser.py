@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
-from amygdala.git.diff_parser import FileDiff, DiffHunk, parse_diff, _parse_hunk_header, _parse_range
+from amygdala.git.diff_parser import (
+    DiffHunk,
+    FileDiff,
+    _parse_hunk_header,
+    _parse_range,
+    parse_diff,
+)
 
 
 class TestParseRange:

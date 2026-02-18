@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 from amygdala.constants import MAX_FILE_SIZE_BYTES, SUPPORTED_EXTENSIONS
 from amygdala.core.hasher import hash_file
@@ -13,8 +13,12 @@ from amygdala.models.enums import FileStatus, Granularity
 from amygdala.models.index import IndexEntry
 from amygdala.models.memory import MemoryFile, Summary
 from amygdala.prompts.templates import format_user_prompt, get_prompts
-from amygdala.providers.base import LLMProvider
 from amygdala.storage.memory_store import write_memory_file
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from amygdala.providers.base import LLMProvider
 
 
 async def capture_file(
@@ -48,7 +52,7 @@ async def capture_file(
         system_prompt, user_prompt,
     )
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     summary = Summary(
         content=summary_text,
         granularity=granularity,

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -11,7 +10,7 @@ from amygdala.cli.formatting import print_error, print_success
 
 
 def serve(  # pragma: no cover
-    project_dir: Optional[Path] = typer.Option(None, "--dir", help="Project directory"),
+    project_dir: Path | None = typer.Option(None, "--dir", help="Project directory"),
 ) -> None:
     """Start the MCP server."""
     root = (project_dir or Path.cwd()).resolve()

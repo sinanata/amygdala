@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import subprocess
-from collections.abc import AsyncIterator
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -13,6 +12,9 @@ from amygdala.exceptions import ConfigNotFoundError
 from amygdala.git.operations import add_files, commit, init_repo
 from amygdala.providers.base import LLMProvider
 from amygdala.storage.layout import get_config_path
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class MockProvider(LLMProvider):
@@ -31,7 +33,9 @@ class MockProvider(LLMProvider):
         self.calls.append(user_prompt[:50])
         return "Mock summary for testing."
 
-    async def generate_stream(self, system_prompt, user_prompt, *, temperature=0.0, max_tokens=4096):
+    async def generate_stream(
+        self, system_prompt, user_prompt, *, temperature=0.0, max_tokens=4096
+    ):
         yield "Mock"
 
     async def healthcheck(self) -> bool:

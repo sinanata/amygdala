@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import shutil
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -13,7 +12,7 @@ from amygdala.storage.layout import get_amygdala_dir
 
 
 def clean(
-    project_dir: Optional[Path] = typer.Option(None, "--dir", help="Project directory"),
+    project_dir: Path | None = typer.Option(None, "--dir", help="Project directory"),
     force: bool = typer.Option(False, "--force", "-f", help="Skip confirmation"),
 ) -> None:
     """Remove all Amygdala data from the project."""

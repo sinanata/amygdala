@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -17,7 +17,6 @@ from amygdala.models.enums import (
 from amygdala.models.index import IndexEntry, IndexFile
 from amygdala.models.memory import MemoryFile, Summary
 from amygdala.models.provider import ProviderConfig
-
 
 # ── Enums ──────────────────────────────────────────────────────────────
 
@@ -104,7 +103,9 @@ class TestAmygdalaConfig:
     def test_defaults(self):
         cfg = AmygdalaConfig(
             project_root="/tmp/proj",
-            provider=ProviderConfig(name=ProviderName.ANTHROPIC, model="claude-haiku-4-5-20251001"),
+            provider=ProviderConfig(
+                name=ProviderName.ANTHROPIC, model="claude-haiku-4-5-20251001"
+            ),
         )
         assert cfg.schema_version == 1
         assert cfg.default_granularity == Granularity.MEDIUM
@@ -114,7 +115,9 @@ class TestAmygdalaConfig:
     def test_project_path(self):
         cfg = AmygdalaConfig(
             project_root="/tmp/proj",
-            provider=ProviderConfig(name=ProviderName.ANTHROPIC, model="claude-haiku-4-5-20251001"),
+            provider=ProviderConfig(
+                name=ProviderName.ANTHROPIC, model="claude-haiku-4-5-20251001"
+            ),
         )
         assert cfg.project_path == Path("/tmp/proj")
 
@@ -145,7 +148,7 @@ class TestIndexEntry:
         assert entry.language is None
 
     def test_full(self):
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         entry = IndexEntry(
             relative_path="src/main.py",
             content_hash="abc123",
@@ -204,7 +207,7 @@ class TestIndexFile:
 
 class TestSummary:
     def test_create(self):
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         s = Summary(
             content="This file does X.",
             granularity=Granularity.SIMPLE,
@@ -216,7 +219,7 @@ class TestSummary:
         assert s.token_count is None
 
     def test_with_token_count(self):
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         s = Summary(
             content="Detailed summary.",
             granularity=Granularity.HIGH,
@@ -239,14 +242,14 @@ class TestMemoryFile:
         older = Summary(
             content="Old",
             granularity=Granularity.SIMPLE,
-            generated_at=datetime(2025, 1, 1, tzinfo=timezone.utc),
+            generated_at=datetime(2025, 1, 1, tzinfo=UTC),
             provider="anthropic",
             model="claude-haiku-4-5-20251001",
         )
         newer = Summary(
             content="New",
             granularity=Granularity.MEDIUM,
-            generated_at=datetime(2025, 6, 1, tzinfo=timezone.utc),
+            generated_at=datetime(2025, 6, 1, tzinfo=UTC),
             provider="anthropic",
             model="claude-haiku-4-5-20251001",
         )

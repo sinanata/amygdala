@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-import json
-
 import httpx
 import pytest
 import respx
 
 from amygdala.exceptions import ProviderAPIError, ProviderAuthError
-from amygdala.providers.anthropic import AnthropicProvider, ANTHROPIC_API_URL
+from amygdala.providers.anthropic import ANTHROPIC_API_URL, AnthropicProvider
 
 
 @pytest.fixture()

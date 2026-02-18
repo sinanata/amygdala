@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pathlib import Path, PurePosixPath
+from pathlib import PurePosixPath
 
 
 def source_to_memory_path(relative_path: str) -> str:

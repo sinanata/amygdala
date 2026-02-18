@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-from rich.panel import Panel
 from rich.table import Table
-from rich.text import Text
 
 from amygdala.cli.console import console
 
@@ -38,7 +36,9 @@ def print_dirty_list(dirty: list[str]) -> None:
         console.print("[green]No dirty files.[/green]")
         return
 
-    table = Table(title=f"Dirty Files ({len(dirty)})", show_header=True, header_style="bold yellow")
+    table = Table(
+        title=f"Dirty Files ({len(dirty)})", show_header=True, header_style="bold yellow"
+    )
     table.add_column("#", style="dim")
     table.add_column("File")
 

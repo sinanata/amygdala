@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import subprocess
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -14,6 +14,9 @@ from amygdala.git.operations import add_files, commit, init_repo
 from amygdala.models.enums import FileStatus
 from amygdala.models.index import IndexEntry, IndexFile
 from amygdala.storage.layout import ensure_layout
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @pytest.fixture()

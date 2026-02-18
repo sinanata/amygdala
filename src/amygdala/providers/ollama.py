@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import json
-import os
-from collections.abc import AsyncIterator
+from typing import TYPE_CHECKING
 
 import httpx
 
 from amygdala.exceptions import ProviderAPIError
 from amygdala.providers.base import LLMProvider
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
 
 OLLAMA_API_URL = "http://localhost:11434/api/chat"
 

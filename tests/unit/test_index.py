@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -18,6 +18,9 @@ from amygdala.exceptions import IndexCorruptedError
 from amygdala.models.enums import FileStatus
 from amygdala.models.index import IndexEntry, IndexFile
 from amygdala.storage.layout import get_index_path
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @pytest.fixture()

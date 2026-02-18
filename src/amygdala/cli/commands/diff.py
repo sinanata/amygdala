@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -13,8 +12,8 @@ from amygdala.exceptions import AmygdalaError
 
 
 def diff(
-    mark_dirty: Optional[str] = typer.Option(None, "--mark-dirty", help="Mark a file as dirty"),
-    project_dir: Optional[Path] = typer.Option(None, "--dir", help="Project directory"),
+    mark_dirty: str | None = typer.Option(None, "--mark-dirty", help="Mark a file as dirty"),
+    project_dir: Path | None = typer.Option(None, "--dir", help="Project directory"),
 ) -> None:
     """Scan for dirty files or mark a file dirty."""
     root = (project_dir or Path.cwd()).resolve()

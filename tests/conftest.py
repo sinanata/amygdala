@@ -3,19 +3,20 @@
 from __future__ import annotations
 
 import subprocess
-from collections.abc import AsyncIterator
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
 from amygdala.core.engine import AmygdalaEngine
 from amygdala.git.operations import add_files, commit, init_repo
 from amygdala.models.config import AmygdalaConfig
-from amygdala.models.enums import Granularity, ProviderName
+from amygdala.models.enums import ProviderName
 from amygdala.models.index import IndexFile
 from amygdala.models.provider import ProviderConfig
 from amygdala.providers.base import LLMProvider
-from amygdala.storage.layout import ensure_layout
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class MockLLMProvider(LLMProvider):
@@ -35,7 +36,9 @@ class MockLLMProvider(LLMProvider):
     async def generate(self, system_prompt, user_prompt, *, temperature=0.0, max_tokens=4096):
         return self._response
 
-    async def generate_stream(self, system_prompt, user_prompt, *, temperature=0.0, max_tokens=4096):
+    async def generate_stream(
+        self, system_prompt, user_prompt, *, temperature=0.0, max_tokens=4096
+    ):
         yield self._response
 
     async def healthcheck(self) -> bool:
@@ -95,10 +98,8 @@ def tmp_amygdala_project(tmp_git_repo: Path) -> Path:
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
     """Render a Rich coverage bar table in terminal summary."""
     try:
-        from coverage import CoverageData
         from rich.console import Console
         from rich.table import Table
-        from rich.bar import Bar
     except ImportError:
         return
 

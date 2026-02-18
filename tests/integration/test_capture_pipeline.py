@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import subprocess
-from collections.abc import AsyncIterator
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -14,6 +13,9 @@ from amygdala.git.operations import add_files, commit, init_repo
 from amygdala.models.enums import FileStatus, Granularity
 from amygdala.providers.base import LLMProvider
 from amygdala.storage.memory_store import list_memory_files, read_memory_file
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class IntegrationMockProvider(LLMProvider):
@@ -39,7 +41,9 @@ class IntegrationMockProvider(LLMProvider):
             return "Library module with utility functions."
         return "Generic file summary."
 
-    async def generate_stream(self, system_prompt, user_prompt, *, temperature=0.0, max_tokens=4096):
+    async def generate_stream(
+        self, system_prompt, user_prompt, *, temperature=0.0, max_tokens=4096
+    ):
         yield await self.generate(system_prompt, user_prompt)
 
     async def healthcheck(self) -> bool:

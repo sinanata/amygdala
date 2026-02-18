@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import subprocess
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
-from amygdala.core.dirty_tracker import get_dirty_files, mark_file_dirty, scan_dirty_files
+from amygdala.core.dirty_tracker import scan_dirty_files
 from amygdala.core.engine import AmygdalaEngine
 from amygdala.core.hasher import hash_file
 from amygdala.core.index import load_index, save_index, upsert_entry
@@ -23,6 +23,9 @@ from amygdala.git.operations import (
 )
 from amygdala.models.enums import FileStatus
 from amygdala.models.index import IndexEntry
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @pytest.fixture()

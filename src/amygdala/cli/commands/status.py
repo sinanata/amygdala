@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -15,7 +14,7 @@ from amygdala.exceptions import AmygdalaError
 
 def status(
     as_json: bool = typer.Option(False, "--json", help="Output as JSON"),
-    project_dir: Optional[Path] = typer.Option(None, "--dir", help="Project directory"),
+    project_dir: Path | None = typer.Option(None, "--dir", help="Project directory"),
 ) -> None:
     """Show project memory status."""
     root = (project_dir or Path.cwd()).resolve()

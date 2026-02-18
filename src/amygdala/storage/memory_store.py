@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import yaml
 
 from amygdala.exceptions import MemoryFileNotFoundError
 from amygdala.models.memory import MemoryFile, Summary
 from amygdala.storage.layout import memory_path_for_file
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def write_memory_file(project_root: Path, memory: MemoryFile) -> Path:
@@ -45,7 +48,8 @@ def write_memory_file(project_root: Path, memory: MemoryFile) -> Path:
 
 def read_memory_file(project_root: Path, relative_path: str) -> MemoryFile:
     """Read a memory file from disk."""
-    from datetime import datetime, timezone
+    from datetime import datetime
+
     from amygdala.models.enums import Granularity
 
     path = memory_path_for_file(project_root, relative_path)

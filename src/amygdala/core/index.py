@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from amygdala.exceptions import IndexCorruptedError
 from amygdala.models.index import IndexEntry, IndexFile
 from amygdala.storage.layout import get_index_path
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def load_index(project_root: Path) -> IndexFile:

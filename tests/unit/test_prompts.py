@@ -5,10 +5,10 @@ from __future__ import annotations
 import pytest
 
 from amygdala.models.enums import Granularity
-from amygdala.prompts.templates import format_user_prompt, get_prompts
-from amygdala.prompts.simple import SIMPLE_SYSTEM, SIMPLE_USER
-from amygdala.prompts.medium import MEDIUM_SYSTEM, MEDIUM_USER
 from amygdala.prompts.high import HIGH_SYSTEM, HIGH_USER
+from amygdala.prompts.medium import MEDIUM_SYSTEM, MEDIUM_USER
+from amygdala.prompts.simple import SIMPLE_SYSTEM, SIMPLE_USER
+from amygdala.prompts.templates import format_user_prompt, get_prompts
 
 
 class TestGetPrompts:

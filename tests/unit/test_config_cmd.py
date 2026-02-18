@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import subprocess
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from typer.testing import CliRunner
@@ -12,7 +12,9 @@ from typer.testing import CliRunner
 from amygdala.cli.app import app
 from amygdala.core.engine import AmygdalaEngine
 from amygdala.git.operations import add_files, commit, init_repo
-from amygdala.storage.layout import ensure_layout
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 runner = CliRunner()
 
@@ -91,17 +93,23 @@ class TestConfigCommand:
         assert result.exit_code == 0
 
     def test_config_get(self, amygdala_project: Path):
-        result = runner.invoke(app, ["config", "get", "schema_version", "--dir", str(amygdala_project)])
+        result = runner.invoke(
+            app, ["config", "get", "schema_version", "--dir", str(amygdala_project)]
+        )
         assert result.exit_code == 0
         assert "1" in result.output
 
     def test_config_get_nested(self, amygdala_project: Path):
-        result = runner.invoke(app, ["config", "get", "provider.name", "--dir", str(amygdala_project)])
+        result = runner.invoke(
+            app, ["config", "get", "provider.name", "--dir", str(amygdala_project)]
+        )
         assert result.exit_code == 0
         assert "anthropic" in result.output
 
     def test_config_get_missing_key(self, amygdala_project: Path):
-        result = runner.invoke(app, ["config", "get", "nonexistent", "--dir", str(amygdala_project)])
+        result = runner.invoke(
+            app, ["config", "get", "nonexistent", "--dir", str(amygdala_project)]
+        )
         assert result.exit_code == 1
 
 
@@ -117,7 +125,7 @@ class TestCleanCommand:
         assert result.exit_code == 1
 
     def test_clean_abort(self, amygdala_project: Path):
-        result = runner.invoke(app, ["clean", "--dir", str(amygdala_project)], input="n\n")
+        runner.invoke(app, ["clean", "--dir", str(amygdala_project)], input="n\n")
         assert (amygdala_project / ".amygdala").exists()
 
 

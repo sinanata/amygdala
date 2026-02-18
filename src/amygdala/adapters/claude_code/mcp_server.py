@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import asyncio
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from mcp.server.fastmcp import FastMCP
 
 from amygdala.core.dirty_tracker import get_dirty_files
 from amygdala.core.engine import AmygdalaEngine
 from amygdala.storage.memory_store import list_memory_files, read_memory_file
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def create_mcp_server(project_root: Path) -> FastMCP:

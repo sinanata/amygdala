@@ -7,7 +7,7 @@ import pytest
 import respx
 
 from amygdala.exceptions import ProviderAPIError, ProviderAuthError
-from amygdala.providers.openai import OpenAIProvider, OPENAI_API_URL
+from amygdala.providers.openai import OPENAI_API_URL, OpenAIProvider
 
 
 @pytest.fixture()
@@ -35,7 +35,9 @@ class TestGenerate:
             return_value=httpx.Response(
                 200,
                 json={
-                    "choices": [{"message": {"content": "Hello from GPT"}, "finish_reason": "stop"}],
+                    "choices": [
+                        {"message": {"content": "Hello from GPT"}, "finish_reason": "stop"}
+                    ],
                     "model": "gpt-4o-mini",
                 },
             )

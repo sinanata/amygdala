@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from amygdala.adapters.claude_code.hooks import (
     generate_hooks_config,
     render_post_tool_use_hook,
     render_session_start_hook,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class TestRenderSessionStartHook:

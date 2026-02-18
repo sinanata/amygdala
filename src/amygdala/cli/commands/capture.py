@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -15,10 +14,10 @@ from amygdala.models.enums import Granularity
 
 
 def capture(
-    paths: Optional[list[str]] = typer.Argument(None, help="Files to capture"),
+    paths: list[str] | None = typer.Argument(None, help="Files to capture"),
     all_files: bool = typer.Option(False, "--all", help="Capture all tracked files"),
-    granularity: Optional[str] = typer.Option(None, "--granularity", "-g", help="Granularity level"),
-    project_dir: Optional[Path] = typer.Option(None, "--dir", help="Project directory"),
+    granularity: str | None = typer.Option(None, "--granularity", "-g", help="Granularity level"),
+    project_dir: Path | None = typer.Option(None, "--dir", help="Project directory"),
 ) -> None:
     """Capture file summaries."""
     root = (project_dir or Path.cwd()).resolve()

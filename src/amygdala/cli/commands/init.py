@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -16,7 +15,7 @@ def init(
     provider: str = typer.Option("anthropic", help="LLM provider name"),
     model: str = typer.Option("claude-haiku-4-5-20251001", help="Model identifier"),
     granularity: str = typer.Option("medium", help="Default granularity: simple|medium|high"),
-    project_dir: Optional[Path] = typer.Option(None, "--dir", help="Project directory"),
+    project_dir: Path | None = typer.Option(None, "--dir", help="Project directory"),
 ) -> None:
     """Initialize Amygdala in a project directory."""
     root = (project_dir or Path.cwd()).resolve()

@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 import typer
 
-from amygdala.cli.formatting import print_config_table, print_error, print_success
+from amygdala.cli.formatting import print_config_table, print_error
 from amygdala.core.engine import AmygdalaEngine
 from amygdala.exceptions import AmygdalaError
 
@@ -16,7 +15,7 @@ config_app = typer.Typer(name="config", help="Manage configuration.")
 
 @config_app.command("show")
 def config_show(
-    project_dir: Optional[Path] = typer.Option(None, "--dir", help="Project directory"),
+    project_dir: Path | None = typer.Option(None, "--dir", help="Project directory"),
 ) -> None:
     """Show current configuration."""
     root = (project_dir or Path.cwd()).resolve()
@@ -32,7 +31,7 @@ def config_show(
 @config_app.command("get")
 def config_get(
     key: str = typer.Argument(..., help="Config key (dot notation)"),
-    project_dir: Optional[Path] = typer.Option(None, "--dir", help="Project directory"),
+    project_dir: Path | None = typer.Option(None, "--dir", help="Project directory"),
 ) -> None:
     """Get a config value."""
     root = (project_dir or Path.cwd()).resolve()

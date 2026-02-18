@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import tomli_w
-import yaml
 
 from amygdala.constants import SCHEMA_VERSION
 from amygdala.core.capture import capture_file
@@ -14,13 +13,17 @@ from amygdala.core.index import load_index, save_index, upsert_entry
 from amygdala.exceptions import ConfigNotFoundError
 from amygdala.git.operations import ensure_git_repo, get_current_branch, get_tracked_files
 from amygdala.models.config import AmygdalaConfig
-from amygdala.models.enums import FileStatus, Granularity, ProviderName
-from amygdala.models.index import IndexEntry, IndexFile
+from amygdala.models.enums import Granularity, ProviderName
+from amygdala.models.index import IndexFile
 from amygdala.models.provider import ProviderConfig
-from amygdala.providers.base import LLMProvider
 from amygdala.providers.registry import get_provider_class
 from amygdala.storage.layout import ensure_layout, get_config_path
 from amygdala.storage.memory_store import list_memory_files
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from amygdala.providers.base import LLMProvider
 
 
 class AmygdalaEngine:

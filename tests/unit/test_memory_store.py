@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 import pytest
 
 from amygdala.exceptions import MemoryFileNotFoundError
 from amygdala.models.enums import Granularity
 from amygdala.models.memory import MemoryFile, Summary
-from amygdala.storage.layout import ensure_layout, get_memory_dir, memory_path_for_file
+from amygdala.storage.layout import ensure_layout, memory_path_for_file
 from amygdala.storage.memory_store import (
     _parse_frontmatter,
     delete_memory_file,
@@ -18,6 +18,9 @@ from amygdala.storage.memory_store import (
     read_memory_file,
     write_memory_file,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @pytest.fixture()
@@ -35,7 +38,7 @@ class TestWriteMemoryFile:
                 Summary(
                     content="Main entry point.",
                     granularity=Granularity.SIMPLE,
-                    generated_at=datetime.now(timezone.utc),
+                    generated_at=datetime.now(UTC),
                     provider="anthropic",
                     model="claude-haiku-4-5-20251001",
                 )
@@ -72,7 +75,7 @@ class TestReadMemoryFile:
                 Summary(
                     content="App module.",
                     granularity=Granularity.MEDIUM,
-                    generated_at=datetime.now(timezone.utc),
+                    generated_at=datetime.now(UTC),
                     provider="openai",
                     model="gpt-4o-mini",
                 )

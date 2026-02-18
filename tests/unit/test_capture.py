@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterator
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
-from amygdala.core.capture import capture_file, _validate_file
+from amygdala.core.capture import _validate_file, capture_file
 from amygdala.exceptions import FileTooLargeError, UnsupportedFileError
 from amygdala.models.enums import FileStatus, Granularity
 from amygdala.providers.base import LLMProvider
 from amygdala.storage.layout import ensure_layout
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class MockProvider(LLMProvider):
@@ -31,7 +33,9 @@ class MockProvider(LLMProvider):
     async def generate(self, system_prompt, user_prompt, *, temperature=0.0, max_tokens=4096):
         return self._response
 
-    async def generate_stream(self, system_prompt, user_prompt, *, temperature=0.0, max_tokens=4096):
+    async def generate_stream(
+        self, system_prompt, user_prompt, *, temperature=0.0, max_tokens=4096
+    ):
         yield self._response
 
     async def healthcheck(self) -> bool:

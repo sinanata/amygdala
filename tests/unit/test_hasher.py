@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import hashlib
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from amygdala.core.hasher import hash_content, hash_file
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class TestHashFile:

@@ -7,7 +7,7 @@ import pytest
 import respx
 
 from amygdala.exceptions import ProviderAPIError
-from amygdala.providers.ollama import OllamaProvider, OLLAMA_API_URL
+from amygdala.providers.ollama import OLLAMA_API_URL, OllamaProvider
 
 
 @pytest.fixture()

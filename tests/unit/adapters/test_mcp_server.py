@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import subprocess
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -14,6 +14,9 @@ from amygdala.git.operations import add_files, commit, init_repo
 from amygdala.models.enums import Granularity
 from amygdala.models.memory import MemoryFile, Summary
 from amygdala.storage.memory_store import write_memory_file
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @pytest.fixture()
@@ -37,7 +40,7 @@ def _write_test_memory(project: Path, rel_path: str, content: str) -> None:
         summaries=[Summary(
             content=content,
             granularity=Granularity.MEDIUM,
-            generated_at=datetime.now(timezone.utc),
+            generated_at=datetime.now(UTC),
             provider="mock",
             model="mock-model",
         )],
@@ -54,17 +57,16 @@ class TestMcpTools:
     """Test the tool functions directly by accessing them from the server."""
 
     def test_get_file_summary_not_found(self, amygdala_project: Path):
-        server = create_mcp_server(amygdala_project)
+        create_mcp_server(amygdala_project)
         # Access the tool functions via the server's tool list
         # We test the underlying functions directly
-        from amygdala.storage.memory_store import read_memory_file
         from amygdala.exceptions import MemoryFileNotFoundError
+        from amygdala.storage.memory_store import read_memory_file
         with pytest.raises(MemoryFileNotFoundError):
             read_memory_file(amygdala_project, "nonexistent.py")
 
     def test_get_file_summary_found(self, amygdala_project: Path):
         _write_test_memory(amygdala_project, "main.py", "Main entry point.")
-        memory = write_memory_file  # just verify the file was written
         from amygdala.storage.memory_store import read_memory_file
         loaded = read_memory_file(amygdala_project, "main.py")
         assert loaded.relative_path == "main.py"

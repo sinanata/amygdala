@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
-from jinja2 import Environment, DictLoader
+from jinja2 import DictLoader, Environment
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 SESSION_START_TEMPLATE = """\
 #!/usr/bin/env bash
@@ -18,22 +20,30 @@ if [ $? -eq 0 ]; then
 fi
 """
 
-POST_TOOL_USE_TEMPLATE = """\
-#!/usr/bin/env bash
-# Amygdala post-tool-use hook for Claude Code
-# Auto-generated — do not edit manually
-
-# Read tool input from stdin
-INPUT=$(cat)
-TOOL_NAME=$(echo "$INPUT" | python -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_name',''))" 2>/dev/null)
-FILE_PATH=$(echo "$INPUT" | python -c "import sys,json; d=json.load(sys.stdin); inp=d.get('tool_input',{}); print(inp.get('file_path', inp.get('path','')))" 2>/dev/null)
-
-if [ "$TOOL_NAME" = "Write" ] || [ "$TOOL_NAME" = "Edit" ]; then
-    if [ -n "$FILE_PATH" ]; then
-        amygdala diff --mark-dirty "$FILE_PATH" --dir "{{ project_root }}" 2>/dev/null
-    fi
-fi
-"""
+POST_TOOL_USE_TEMPLATE = (  # noqa: E501
+    '#!/usr/bin/env bash\n'
+    '# Amygdala post-tool-use hook for Claude Code\n'
+    '# Auto-generated — do not edit manually\n'
+    '\n'
+    '# Read tool input from stdin\n'
+    'INPUT=$(cat)\n'
+    'TOOL_NAME=$(echo "$INPUT" | python -c "'
+    "import sys,json; d=json.load(sys.stdin); "
+    "print(d.get('tool_name',''))"
+    '" 2>/dev/null)\n'
+    'FILE_PATH=$(echo "$INPUT" | python -c "'
+    "import sys,json; d=json.load(sys.stdin); "
+    "inp=d.get('tool_input',{}); "
+    "print(inp.get('file_path', inp.get('path','')))"
+    '" 2>/dev/null)\n'
+    '\n'
+    'if [ "$TOOL_NAME" = "Write" ] || [ "$TOOL_NAME" = "Edit" ]; then\n'
+    '    if [ -n "$FILE_PATH" ]; then\n'
+    '        amygdala diff --mark-dirty "$FILE_PATH"'
+    ' --dir "{{ project_root }}" 2>/dev/null\n'
+    '    fi\n'
+    'fi\n'
+)
 
 
 _env = Environment(loader=DictLoader({

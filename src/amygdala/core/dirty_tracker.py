@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from amygdala.core.hasher import hash_file
 from amygdala.core.index import get_entry, load_index, save_index, upsert_entry
-from amygdala.git.operations import ensure_git_repo, get_diff_names, get_file_status
+from amygdala.git.operations import ensure_git_repo
 from amygdala.models.enums import FileStatus
-from amygdala.models.index import IndexFile
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def scan_dirty_files(project_root: Path) -> list[str]:

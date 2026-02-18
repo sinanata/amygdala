@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import json
 import os
-from collections.abc import AsyncIterator
+from typing import TYPE_CHECKING
 
 import httpx
 
 from amygdala.exceptions import ProviderAPIError, ProviderAuthError
 from amygdala.providers.base import LLMProvider
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
 
 OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
 

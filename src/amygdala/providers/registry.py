@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 from importlib.metadata import entry_points
+from typing import TYPE_CHECKING
 
 from amygdala.exceptions import ProviderNotFoundError
-from amygdala.providers.base import LLMProvider
+
+if TYPE_CHECKING:
+    from amygdala.providers.base import LLMProvider
 
 
 def get_provider_class(name: str) -> type[LLMProvider]:

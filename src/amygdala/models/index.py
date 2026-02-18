@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from pydantic import BaseModel, Field
 
@@ -43,8 +43,8 @@ class IndexFile(BaseModel):
 
     def touch_scan(self) -> None:
         """Update last_scan_at to now."""
-        self.last_scan_at = datetime.now(timezone.utc)
+        self.last_scan_at = datetime.now(UTC)
 
     def touch_capture(self) -> None:
         """Update last_capture_at to now."""
-        self.last_capture_at = datetime.now(timezone.utc)
+        self.last_capture_at = datetime.now(UTC)

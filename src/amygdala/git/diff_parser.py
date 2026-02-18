@@ -29,11 +29,11 @@ class FileDiff:
 
     @property
     def added_lines(self) -> int:
-        return sum(1 for h in self.hunks for l in h.lines if l.startswith("+"))
+        return sum(1 for h in self.hunks for line in h.lines if line.startswith("+"))
 
     @property
     def removed_lines(self) -> int:
-        return sum(1 for h in self.hunks for l in h.lines if l.startswith("-"))
+        return sum(1 for h in self.hunks for line in h.lines if line.startswith("-"))
 
 
 def parse_diff(raw_diff: str) -> list[FileDiff]:
